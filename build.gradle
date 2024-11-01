@@ -1,0 +1,74 @@
+// 모든 plugins {} 블록을 파일 상단에 하나로 통합합니다.
+plugins {
+    id 'java'
+    id 'application'
+    id 'edu.sc.seis.launch4j' version '2.5.0'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
+    compileOnly 'org.projectlombok:lombok:1.18.28'
+    annotationProcessor 'org.projectlombok:lombok:1.18.28'
+    testCompileOnly 'org.projectlombok:lombok:1.18.28'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.28'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'app.example.Main'
+    }
+}
+
+mainClassName = 'app.example.Main'
+
+launch4j {
+    outfile = 'IS Log Converter.exe'
+    jar = "$buildDir/libs/SAP_IS_Log_Export-all.jar"
+    icon = 'C:/Users/psyhy/Downloads/IS_Log_Converter_202411/src/main/resources/logo.ico'
+    jvmOptions = ['-Xmx1024m']
+    mainClassName = 'app.example.Main'
+//    headerType = 'console'  // 디버깅용
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('distZip') {
+    dependsOn tasks.named('createExe')
+}
+
+tasks.named('distTar') {
+    dependsOn tasks.named('createExe')
+}
+
+tasks.named('startScripts') {
+    dependsOn tasks.named('createExe')
+}
+
+shadowJar {
+    archiveBaseName.set('SAP_IS_Log_Export') // 생성될 JAR 이름
+    archiveClassifier.set('all') // 모든 의존성을 포함한 JAR로 구분하기 위해 사용
+    archiveVersion.set('1.0-SNAPSHOT')
+}
